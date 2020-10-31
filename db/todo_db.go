@@ -16,10 +16,16 @@ const (
 
 var TodoDB todoDBInterface = &todoDB{}
 
-type todoDBInterface interface{}
+type todoDBInterface interface {
+	GetClient() *sql.DB
+}
 
 type todoDB struct {
-	client *sql.DB
+	Client *sql.DB
+}
+
+func (db *todoDB) GetClient() *sql.DB {
+	return db.Client
 }
 
 func (db *todoDB) init() {
@@ -28,12 +34,12 @@ func (db *todoDB) init() {
 	)
 
 	var err error
-	db.client, err = sql.Open("mysql", dataSourceName)
+	db.Client, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err)
 	}
 
-	if err = db.client.Ping(); err != nil {
+	if err = db.Client.Ping(); err != nil {
 		panic(err)
 	}
 }
