@@ -18,6 +18,7 @@ var TodoDB todoDBInterface = &todoDB{}
 
 type todoDBInterface interface {
 	GetClient() *sql.DB
+	Init()
 }
 
 type todoDB struct {
@@ -28,7 +29,7 @@ func (db *todoDB) GetClient() *sql.DB {
 	return db.Client
 }
 
-func (db *todoDB) init() {
+func (db *todoDB) Init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
 		username, password, host, schema,
 	)
@@ -42,4 +43,6 @@ func (db *todoDB) init() {
 	if err = db.Client.Ping(); err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Connect mysql")
 }

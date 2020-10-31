@@ -10,7 +10,7 @@ type todoServiceInterface interface {
 	GetAll() (*todo.Todos, error)
 	GetByID(int64) (*todo.Todo, error)
 	Create(string, string) (*todo.Todo, error)
-	Update(string, string, todo.Status) (*todo.Todo, error)
+	Update(todo.Todo) (*todo.Todo, error)
 	Delete(int64) error
 }
 
@@ -55,21 +55,16 @@ func (service *todoService) Create(title, description string) (*todo.Todo, error
 	return &dao, nil
 }
 
-func (service *todoService) Update(title, description string, status todo.Status) (*todo.Todo, error) {
-	dao := todo.Todo{
-		Title:       title,
-		Description: description,
-		Status:      status,
-	}
-	if err := dao.Validate(); err != nil {
+func (service *todoService) Update(updateTodo todo.Todo) (*todo.Todo, error) {
+	if err := updateTodo.Validate(); err != nil {
 		return nil, err
 	}
 
-	if err := dao.Update(); err != nil {
+	if err := updateTodo.Update(); err != nil {
 		return nil, err
 	}
 
-	return &dao, nil
+	return &updateTodo, nil
 }
 
 func (service *todoService) Delete(id int64) error {
@@ -77,7 +72,7 @@ func (service *todoService) Delete(id int64) error {
 		ID: id,
 	}
 
-	if err := dao.GetByID(); err != nil {
+	if err := dao.Delete(); err != nil {
 		return err
 	}
 

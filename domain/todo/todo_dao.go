@@ -2,6 +2,7 @@ package todo
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/DuGlaser/go-todo-server/db"
 )
@@ -21,12 +22,10 @@ func (t *Todo) GetAll() (Todos, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(
-		t.Title,
-		t.Description,
-		t.Status,
-	)
+	rows, err := stmt.Query()
+
 	if err != nil {
+		fmt.Println(err)
 		return nil, errors.New("error when trying to get todos")
 	}
 
@@ -42,6 +41,7 @@ func (t *Todo) GetAll() (Todos, error) {
 			&todo.Status,
 		)
 		if scanErr != nil {
+			fmt.Println(err)
 			return nil, errors.New("error when trying to get todos")
 		}
 
@@ -123,6 +123,7 @@ func (t *Todo) Update() error {
 func (t *Todo) Delete() error {
 	stmt, err := db.TodoDB.GetClient().Prepare(queryDeleteTodo)
 	if err != nil {
+		fmt.Println(err)
 		return errors.New("error when trying to delete todo")
 	}
 	defer stmt.Close()
@@ -131,6 +132,7 @@ func (t *Todo) Delete() error {
 		t.ID,
 	)
 	if err != nil {
+		fmt.Println(err)
 		return errors.New("error when trying to delete todo")
 	}
 
