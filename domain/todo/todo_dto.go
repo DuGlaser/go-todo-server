@@ -1,4 +1,4 @@
-package todo_dto
+package todo
 
 import "errors"
 
