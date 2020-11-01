@@ -14,35 +14,22 @@ const (
 	schema   = "db_name"
 )
 
-var TodoDB todoDBInterface = &todoDB{}
+var dbConn *sql.DB
 
-type todoDBInterface interface {
-	GetClient() *sql.DB
-	Init()
-}
-
-type todoDB struct {
-	Client *sql.DB
-}
-
-func (db *todoDB) GetClient() *sql.DB {
-	return db.Client
-}
-
-func (db *todoDB) Init() {
+func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
 		username, password, host, schema,
 	)
 
 	var err error
-	db.Client, err = sql.Open("mysql", dataSourceName)
+	dbConn, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err)
 	}
 
-	if err = db.Client.Ping(); err != nil {
+	if err = dbConn.Ping(); err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Connect mysql")
+	fmt.Println("Connect mysql!")
 }
