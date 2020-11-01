@@ -22,7 +22,7 @@ func NewTodoHandler(c *gin.Engine, u domain.TodoUsecase) {
 	c.POST("/todo/", handler.Create)
 	c.PUT("/todo/", handler.Update)
 	c.GET("/todo/:id", handler.GetByID)
-	c.DELETE("/todo/:id", handler.GetAll)
+	c.DELETE("/todo/:id", handler.Delete)
 }
 
 func (h *TodoHandler) GetAll(c *gin.Context) {

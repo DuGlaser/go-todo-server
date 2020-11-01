@@ -14,7 +14,7 @@ const (
 	schema   = "db_name"
 )
 
-var dbConn *sql.DB
+var DBConn *sql.DB
 
 func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
@@ -22,12 +22,12 @@ func init() {
 	)
 
 	var err error
-	dbConn, err = sql.Open("mysql", dataSourceName)
+	DBConn, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err)
 	}
 
-	if err = dbConn.Ping(); err != nil {
+	if err = DBConn.Ping(); err != nil {
 		panic(err)
 	}
 
