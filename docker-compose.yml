@@ -1,7 +1,7 @@
 version: '3'
 services:
-  clean_architecture_server:
-    container_name: todo-server
+  todo-db:
+    container_name: todo-db
     image: mysql:5.7.29
     ports:
       - '3306:3306'
@@ -12,3 +12,14 @@ services:
       MYSQL_PASSWORD: password
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
+  
+  todo-test-db:
+    container_name: todo-test-db
+    image: mysql:5.7.29
+    ports:
+      - '5433:5433'
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db_test_name
+      MYSQL_USER: username
+      MYSQL_PASSWORD: password
