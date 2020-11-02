@@ -1,4 +1,4 @@
-package todo
+package domain
 
 import (
 	"errors"
@@ -38,4 +38,20 @@ func (t *Todo) Validate() error {
 	}
 
 	return nil
+}
+
+type TodoUsecase interface {
+	GetAll() (Todos, error)
+	GetByID(int64) (Todo, error)
+	Store(*Todo) error
+	Update(*Todo) error
+	Delete(int64) error
+}
+
+type TodoRepository interface {
+	GetAll() (Todos, error)
+	GetByID(int64) (Todo, error)
+	Store(*Todo) error
+	Update(*Todo) error
+	Delete(int64) error
 }

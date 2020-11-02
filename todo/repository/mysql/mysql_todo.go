@@ -1,11 +1,16 @@
-package todo
+package mysql
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/DuGlaser/go-todo-server/db"
+	"github.com/DuGlaser/go-todo-server/domain"
 )
+
+type mysqlTodoRepository struct {
+	Conn *sql.DB
+}
 
 const (
 	queryGetAllTodo  = "SELECT id, title, description, status FROM todos;"
@@ -15,8 +20,12 @@ const (
 	queryDeleteTodo  = "DELETE FROM todos WHERE id=?;"
 )
 
-func (t *Todo) GetAll() (Todos, error) {
-	stmt, err := db.TodoDB.GetClient().Prepare(queryGetAllTodo)
+func NewMysqlTodoRepository(Conn *sql.DB) domain.TodoRepository {
+	return &mysqlTodoRepository{Conn}
+}
+
+func (m *mysqlTodoRepository) GetAll() (domain.Todos, error) {
+	stmt, err := m.Conn.Prepare(queryGetAllTodo)
 	if err != nil {
 		return nil, errors.New("error when trying to get todos")
 	}
@@ -29,10 +38,10 @@ func (t *Todo) GetAll() (Todos, error) {
 		return nil, errors.New("error when trying to get todos")
 	}
 
-	todos := make(Todos, 0)
+	todos := make(domain.Todos, 0)
 
 	for rows.Next() {
-		var todo Todo
+		var todo domain.Todo
 
 		scanErr := rows.Scan(
 			&todo.ID,
@@ -51,16 +60,16 @@ func (t *Todo) GetAll() (Todos, error) {
 	return todos, nil
 }
 
-func (t *Todo) GetByID() error {
-	stmt, err := db.TodoDB.GetClient().Prepare(queryGetByIdTodo)
+func (m *mysqlTodoRepository) GetByID(id int64) (domain.Todo, error) {
+	var t domain.Todo
+	stmt, err := m.Conn.Prepare(queryGetByIdTodo)
 	if err != nil {
-		return errors.New("error when trying to get todo by id")
+		return t, errors.New("error when trying to get todo by id")
 	}
 	defer stmt.Close()
 
-	row := stmt.QueryRow(
-		t.ID,
-	)
+	row := stmt.QueryRow(id)
+
 	err = row.Scan(
 		&t.ID,
 		&t.Title,
@@ -68,14 +77,14 @@ func (t *Todo) GetByID() error {
 		&t.Status,
 	)
 	if err != nil {
-		return errors.New("error when trying to save todo by id")
+		return t, errors.New("error when trying to save todo by id")
 	}
 
-	return nil
+	return t, nil
 }
 
-func (t *Todo) Save() error {
-	stmt, err := db.TodoDB.GetClient().Prepare(queryInsertTodo)
+func (m *mysqlTodoRepository) Store(t *domain.Todo) error {
+	stmt, err := m.Conn.Prepare(queryInsertTodo)
 	if err != nil {
 		return errors.New("error when trying to save todo")
 	}
@@ -100,8 +109,8 @@ func (t *Todo) Save() error {
 	return nil
 }
 
-func (t *Todo) Update() error {
-	stmt, err := db.TodoDB.GetClient().Prepare(queryUpdateTodo)
+func (m *mysqlTodoRepository) Update(t *domain.Todo) error {
+	stmt, err := m.Conn.Prepare(queryUpdateTodo)
 	if err != nil {
 		return errors.New("error when trying to update todo")
 	}
@@ -120,17 +129,15 @@ func (t *Todo) Update() error {
 	return nil
 }
 
-func (t *Todo) Delete() error {
-	stmt, err := db.TodoDB.GetClient().Prepare(queryDeleteTodo)
+func (m *mysqlTodoRepository) Delete(id int64) error {
+	stmt, err := m.Conn.Prepare(queryDeleteTodo)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("error when trying to delete todo")
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(
-		t.ID,
-	)
+	_, err = stmt.Exec(id)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("error when trying to delete todo")
