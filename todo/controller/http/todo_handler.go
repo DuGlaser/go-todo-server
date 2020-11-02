@@ -19,8 +19,8 @@ func NewTodoHandler(c *gin.Engine, u domain.TodoUsecase) {
 
 	c.GET("/todos", handler.GetAll)
 
-	c.POST("/todo/", handler.Create)
-	c.PUT("/todo/", handler.Update)
+	c.POST("/todo", handler.Create)
+	c.PUT("/todo", handler.Update)
 	c.GET("/todo/:id", handler.GetByID)
 	c.DELETE("/todo/:id", handler.Delete)
 }
@@ -65,8 +65,7 @@ func (h *TodoHandler) Create(c *gin.Context) {
 		return
 	}
 
-	err := h.todoUsecase.Store(&todo)
-	if err != nil {
+	if err := h.todoUsecase.Store(&todo); err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
