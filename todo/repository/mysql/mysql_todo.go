@@ -77,7 +77,7 @@ func (m *mysqlTodoRepository) GetByID(id int64) (domain.Todo, error) {
 		&t.Status,
 	)
 	if err != nil {
-		return t, errors.New("error when trying to save todo by id")
+		return t, errors.New("error when trying to get todo by id")
 	}
 
 	return t, nil

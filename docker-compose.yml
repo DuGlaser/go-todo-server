@@ -1,7 +1,7 @@
 version: '3'
 services:
-  clean_architecture_server:
-    container_name: todo-server
+  todo-db:
+    container_name: todo-db
     image: mysql:5.7.29
     ports:
       - '3306:3306'
