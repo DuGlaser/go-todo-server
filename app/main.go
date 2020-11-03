@@ -11,7 +11,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	todoRepo := mysql.NewMysqlTodoRepository(db.DBConn)
+	todoRepo := mysql.NewMysqlTodoRepository(db.NewDB())
 	todoUsecase := usecase.NewTodoUsecase(todoRepo)
 	http.NewTodoHandler(router, todoUsecase)
 
