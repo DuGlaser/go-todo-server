@@ -34,7 +34,8 @@ func NewTodoConfig() *Config {
 	c.DB.Test.Host = "localhost"
 	c.DB.Test.Username = "username"
 	c.DB.Test.Password = "password"
-	c.DB.Test.DBName = "5433"
+	c.DB.Test.DBName = "db_name_test"
+	c.DB.Test.Port = "3306"
 
 	return c
 }
