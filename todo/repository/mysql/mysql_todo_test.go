@@ -3,6 +3,7 @@ package mysql_test
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"testing"
 
@@ -30,15 +31,15 @@ var (
 func Drop() error {
 	ctx := context.Background()
 
-	stmt, err := DBConn.PrepareContext(ctx, queryDropTodo)
-	if err != nil {
-		return err
+	stmt, restErr := DBConn.PrepareContext(ctx, queryDropTodo)
+	if restErr != nil {
+		return restErr
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx)
-	if err != nil {
-		return err
+	_, restErr = stmt.ExecContext(ctx)
+	if restErr != nil {
+		return restErr
 	}
 	return nil
 }
@@ -46,24 +47,24 @@ func Drop() error {
 func Up() error {
 	ctx := context.Background()
 
-	stmt, err := DBConn.PrepareContext(ctx, queryUpTodo)
-	if err != nil {
-		return err
+	stmt, restErr := DBConn.PrepareContext(ctx, queryUpTodo)
+	if restErr != nil {
+		return restErr
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx)
-	if err != nil {
-		return err
+	_, restErr = stmt.ExecContext(ctx)
+	if restErr != nil {
+		return restErr
 	}
 	return nil
 }
 
 func TestMain(m *testing.M) {
 	testDB := db.NewTodoConfig().DB.Test
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		log.Fatalf("Could not connect to docker : %s", err)
+	pool, restErr := dockertest.NewPool("")
+	if restErr != nil {
+		log.Fatalf("Could not connect to docker : %s", restErr)
 	}
 
 	opts := dockertest.RunOptions{
@@ -77,27 +78,27 @@ func TestMain(m *testing.M) {
 		ExposedPorts: []string{testDB.Port},
 	}
 
-	resource, err := pool.RunWithOptions(&opts)
-	if err != nil {
-		log.Fatalf("Could not start resource: %s", err.Error())
+	resource, restErr := pool.RunWithOptions(&opts)
+	if restErr != nil {
+		log.Fatalf("Could not start resource: %s", restErr.Error())
 	}
 
 	defer DBConn.Close()
 
-	err = Drop()
-	if err != nil {
-		panic(err)
+	restErr = Drop()
+	if restErr != nil {
+		panic(restErr)
 	}
 
-	err = Up()
-	if err != nil {
-		panic(err)
+	restErr = Up()
+	if restErr != nil {
+		panic(restErr)
 	}
 
 	code := m.Run()
 
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+	if restErr := pool.Purge(resource); restErr != nil {
+		log.Fatalf("Could not purge resource: %s", restErr)
 	}
 
 	os.Exit(code)
@@ -110,9 +111,9 @@ func TestStore(t *testing.T) {
 		Status:      domain.Doing,
 	}
 	repo := mysql.NewMysqlTodoRepository(DBConn)
-	err := repo.Store(TestTodo)
+	restErr := repo.Store(TestTodo)
 
-	assert.NoError(t, err)
+	assert.Nil(t, restErr)
 	assert.NotNil(t, TestTodo.ID)
 }
 
@@ -126,17 +127,16 @@ func TestGetByID(t *testing.T) {
 	Drop()
 	Up()
 
-	err := repo.Store(TestTodo)
-	if err != nil {
-		t.Fatalf(err.Error())
+	if restErr := repo.Store(TestTodo); restErr != nil {
+		t.Fatalf(restErr.Message)
 	}
 
-	todo, err := repo.GetByID(TestTodo.ID)
-	if err != nil {
-		t.Fatalf(err.Error())
+	todo, restErr := repo.GetByID(TestTodo.ID)
+	if restErr != nil {
+		t.Fatalf(restErr.Message)
 	}
 
-	assert.NoError(t, err)
+	assert.Nil(t, restErr)
 	assert.EqualValues(t, *TestTodo, todo)
 }
 
@@ -164,12 +164,12 @@ func TestGetAll(t *testing.T) {
 	TestTodos = append(TestTodos, *TestTodo1)
 	TestTodos = append(TestTodos, *TestTodo2)
 
-	todos, err := repo.GetAll()
-	if err != nil {
-		t.Fatalf(err.Error())
+	todos, restErr := repo.GetAll()
+	if restErr != nil {
+		t.Fatalf(restErr.Message)
 	}
 
-	assert.NoError(t, err)
+	assert.Nil(t, restErr)
 	assert.EqualValues(t, TestTodos, todos)
 }
 
@@ -187,9 +187,9 @@ func TestUpdate(t *testing.T) {
 
 	TestTodo.Title = "test_title_updated"
 	TestTodo.Description = "test_description_updated"
-	err := repo.Update(TestTodo)
+	restErr := repo.Update(TestTodo)
 
-	assert.NoError(t, err)
+	assert.Nil(t, restErr)
 
 	todo, _ := repo.GetByID(TestTodo.ID)
 
@@ -213,7 +213,7 @@ func TestDelete(t *testing.T) {
 
 	repo.Delete(TestTodo.ID)
 
-	todo, err := repo.GetByID(TestTodo.ID)
-	assert.NotNil(t, err)
+	todo, restErr := repo.GetByID(TestTodo.ID)
+	assert.EqualValues(t, restErr.Status, http.StatusNotFound)
 	assert.EqualValues(t, domain.Todo{}, todo)
 }

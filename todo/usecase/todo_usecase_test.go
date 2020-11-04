@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/DuGlaser/go-todo-server/domain"
@@ -34,20 +33,20 @@ func TestGetAll(t *testing.T) {
 		mockTodoRepo.On("GetAll").Return(mockTodos, nil).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		res, err := u.GetAll()
+		res, restErr := u.GetAll()
 
-		assert.NoError(t, err)
+		assert.Nil(t, restErr)
 		assert.EqualValues(t, mockTodos[0], res[0])
 		assert.EqualValues(t, mockTodos[1], res[1])
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
-		mockTodoRepo.On("GetAll").Return(domain.Todos{}, errors.New("Unexpected")).Once()
+		mockTodoRepo.On("GetAll").Return(domain.Todos{}, domain.NewInternalServerError("Unexpected")).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		res, err := u.GetAll()
+		res, restErr := u.GetAll()
 
-		assert.Error(t, err)
+		assert.NotNil(t, restErr)
 		assert.EqualValues(t, domain.Todos{}, res)
 	})
 }
@@ -65,9 +64,9 @@ func TestGetByID(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		res, err := u.GetByID(mockTodo.ID)
+		res, restErr := u.GetByID(mockTodo.ID)
 
-		assert.NoError(t, err)
+		assert.Nil(t, restErr)
 		assert.EqualValues(t, res.ID, mockTodo.ID)
 		assert.EqualValues(t, res.Title, mockTodo.Title)
 		assert.EqualValues(t, res.Description, mockTodo.Description)
@@ -77,12 +76,12 @@ func TestGetByID(t *testing.T) {
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
-		mockTodoRepo.On("GetByID", mock.AnythingOfType("int64")).Return(domain.Todo{}, errors.New("Unexpected")).Once()
+		mockTodoRepo.On("GetByID", mock.AnythingOfType("int64")).Return(domain.Todo{}, domain.NewInternalServerError("Unexpected")).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		res, err := u.GetByID(mockTodo.ID)
+		res, restErr := u.GetByID(mockTodo.ID)
 
-		assert.Error(t, err)
+		assert.NotNil(t, restErr)
 		assert.EqualValues(t, domain.Todo{}, res)
 	})
 }
@@ -99,19 +98,19 @@ func TestStore(t *testing.T) {
 		mockTodoRepo.On("Store", mock.Anything).Return(nil).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Store(&mockTodo)
+		restErr := u.Store(&mockTodo)
 
-		assert.NoError(t, err)
+		assert.Nil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
-		mockTodoRepo.On("Store", mock.Anything).Return(errors.New("Unexpected")).Once()
+		mockTodoRepo.On("Store", mock.Anything).Return(domain.NewInternalServerError("Unexpected")).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Store(&mockTodo)
+		restErr := u.Store(&mockTodo)
 
-		assert.Error(t, err)
+		assert.NotNil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 }
@@ -123,19 +122,19 @@ func TestDelete(t *testing.T) {
 		mockTodoRepo.On("Delete", mock.AnythingOfType("int64")).Return(nil).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Delete(1)
+		restErr := u.Delete(1)
 
-		assert.NoError(t, err)
+		assert.Nil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
-		mockTodoRepo.On("Delete", mock.AnythingOfType("int64")).Return(errors.New("Unexpected")).Once()
+		mockTodoRepo.On("Delete", mock.AnythingOfType("int64")).Return(domain.NewInternalServerError("Unexpected")).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Delete(1)
+		restErr := u.Delete(1)
 
-		assert.Error(t, err)
+		assert.NotNil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 }
@@ -152,19 +151,19 @@ func TestUpdate(t *testing.T) {
 		mockTodoRepo.On("Update", mock.Anything).Return(nil).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Update(&mockTodo)
+		restErr := u.Update(&mockTodo)
 
-		assert.NoError(t, err)
+		assert.Nil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
-		mockTodoRepo.On("Update", mock.Anything).Return(errors.New("Unexpected")).Once()
+		mockTodoRepo.On("Update", mock.Anything).Return(domain.NewInternalServerError("Unexpected")).Once()
 		u := usecase.NewTodoUsecase(mockTodoRepo)
 
-		err := u.Update(&mockTodo)
+		restErr := u.Update(&mockTodo)
 
-		assert.Error(t, err)
+		assert.NotNil(t, restErr)
 		mockTodoRepo.AssertExpectations(t)
 	})
 }
