@@ -26,9 +26,9 @@ func NewTodoHandler(c *gin.Engine, u domain.TodoUsecase) {
 }
 
 func (h *TodoHandler) GetAll(c *gin.Context) {
-	res, err := h.todoUsecase.GetAll()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	res, restErr := h.todoUsecase.GetAll()
+	if restErr != nil {
+		c.JSON(http.StatusInternalServerError, restErr)
 		return
 	}
 
@@ -43,9 +43,9 @@ func (h *TodoHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	res, err := h.todoUsecase.GetByID(int64(intID))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	res, restErr := h.todoUsecase.GetByID(int64(intID))
+	if restErr != nil {
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 
@@ -61,12 +61,12 @@ func (h *TodoHandler) Create(c *gin.Context) {
 	}
 
 	if err := todo.Validate(); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(err.Status, err)
 		return
 	}
 
-	if err := h.todoUsecase.Store(&todo); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if restErr := h.todoUsecase.Store(&todo); restErr != nil {
+		c.JSON(http.StatusInternalServerError, restErr)
 		return
 	}
 
@@ -82,13 +82,12 @@ func (h *TodoHandler) Update(c *gin.Context) {
 	}
 
 	if err := todo.Validate(); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(err.Status, err)
 		return
 	}
 
-	err := h.todoUsecase.Update(&todo)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if restErr := h.todoUsecase.Update(&todo); restErr != nil {
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 
@@ -103,9 +102,8 @@ func (h *TodoHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = h.todoUsecase.Delete(int64(intID))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if restErr := h.todoUsecase.Delete(int64(intID)); restErr != nil {
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 

@@ -3,7 +3,6 @@ package http_test
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -15,6 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+)
+
+var (
+	UnexpectedErr = domain.NewInternalServerError("Unexpected")
 )
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
@@ -84,17 +87,17 @@ func TestGetAll(t *testing.T) {
 
 	t.Run("error-GetAll-failed", func(t *testing.T) {
 		router := gin.Default()
-		todoUsecase.On("GetAll").Return(domain.Todos{}, errors.New("Unexpected")).Once()
+		todoUsecase.On("GetAll").Return(domain.Todos{}, UnexpectedErr).Once()
 
 		controller.NewTodoHandler(router, todoUsecase)
 
 		res := performGetRequest(router, "/todos")
 
-		var resTodos domain.Todos
-		json.Unmarshal([]byte(res.Body.String()), &resTodos)
+		var restErr domain.RestErr
+		json.Unmarshal([]byte(res.Body.String()), &restErr)
 
 		assert.EqualValues(t, http.StatusInternalServerError, res.Code)
-		assert.EqualValues(t, "{}", res.Body.String())
+		assert.EqualValues(t, *UnexpectedErr, restErr)
 	})
 }
 
@@ -124,14 +127,17 @@ func TestGetByID(t *testing.T) {
 
 	t.Run("error-GetByID-failed", func(t *testing.T) {
 		router := gin.Default()
-		todoUsecase.On("GetByID", mock.AnythingOfType("int64")).Return(domain.Todo{}, errors.New("Unexpected")).Once()
+		todoUsecase.On("GetByID", mock.AnythingOfType("int64")).Return(domain.Todo{}, UnexpectedErr).Once()
 
 		controller.NewTodoHandler(router, todoUsecase)
 
 		res := performGetRequest(router, "/todo/1")
 
+		var restErr domain.RestErr
+		json.Unmarshal([]byte(res.Body.String()), &restErr)
+
 		assert.EqualValues(t, http.StatusInternalServerError, res.Code)
-		assert.EqualValues(t, "{}", res.Body.String())
+		assert.EqualValues(t, *UnexpectedErr, restErr)
 	})
 
 	t.Run("error-invalid-id-failed", func(t *testing.T) {
@@ -186,13 +192,12 @@ func TestCreate(t *testing.T) {
 		data, _ := json.Marshal(mockInvalidStatusTodo)
 		res := performPostRequest(router, "/todo", bytes.NewBuffer(data))
 
-		assert.EqualValues(t, http.StatusInternalServerError, res.Code)
-		assert.EqualValues(t, "{}", res.Body.String())
+		assert.EqualValues(t, http.StatusBadRequest, res.Code)
 	})
 
 	t.Run("error-store-failed", func(t *testing.T) {
 		router := gin.Default()
-		todoUsecase.On("Store", mock.Anything).Return(errors.New("Unexpected")).Once()
+		todoUsecase.On("Store", mock.Anything).Return(UnexpectedErr).Once()
 
 		controller.NewTodoHandler(router, todoUsecase)
 
@@ -256,13 +261,12 @@ func TestUpdate(t *testing.T) {
 		data, _ := json.Marshal(mockInvalidStatusTodo)
 		res := performPutRequest(router, "/todo", bytes.NewBuffer(data))
 
-		assert.EqualValues(t, http.StatusInternalServerError, res.Code)
-		assert.EqualValues(t, "{}", res.Body.String())
+		assert.EqualValues(t, http.StatusBadRequest, res.Code)
 	})
 
 	t.Run("error-update-failed", func(t *testing.T) {
 		router := gin.Default()
-		todoUsecase.On("Update", mock.Anything).Return(errors.New("Unexpected")).Once()
+		todoUsecase.On("Update", mock.Anything).Return(UnexpectedErr).Once()
 
 		controller.NewTodoHandler(router, todoUsecase)
 
@@ -299,7 +303,7 @@ func TestDelete(t *testing.T) {
 
 	t.Run("error-delete-failed", func(t *testing.T) {
 		router := gin.Default()
-		todoUsecase.On("Delete", mock.Anything).Return(errors.New("Unexpected")).Once()
+		todoUsecase.On("Delete", mock.Anything).Return(UnexpectedErr).Once()
 
 		controller.NewTodoHandler(router, todoUsecase)
 		res := performDeleteRequest(router, "/todo/1")

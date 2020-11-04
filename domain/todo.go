@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -21,37 +20,37 @@ type Todo struct {
 
 type Todos []Todo
 
-func (t *Todo) Validate() error {
+func (t *Todo) Validate() *RestErr {
 	t.Title = strings.TrimSpace(t.Title)
 	t.Description = strings.TrimSpace(t.Description)
 
 	if t.Title == "" {
-		return errors.New("title is empty")
+		return NewBadRequest("title is empty")
 	}
 
 	if t.Description == "" {
-		return errors.New("description is empty")
+		return NewBadRequest("description is empty")
 	}
 
 	if !(t.Status == Doing || t.Status == Done) {
-		return errors.New("invalid status")
+		return NewBadRequest("invalid status")
 	}
 
 	return nil
 }
 
 type TodoUsecase interface {
-	GetAll() (Todos, error)
-	GetByID(int64) (Todo, error)
-	Store(*Todo) error
-	Update(*Todo) error
-	Delete(int64) error
+	GetAll() (Todos, *RestErr)
+	GetByID(int64) (Todo, *RestErr)
+	Store(*Todo) *RestErr
+	Update(*Todo) *RestErr
+	Delete(int64) *RestErr
 }
 
 type TodoRepository interface {
-	GetAll() (Todos, error)
-	GetByID(int64) (Todo, error)
-	Store(*Todo) error
-	Update(*Todo) error
-	Delete(int64) error
+	GetAll() (Todos, *RestErr)
+	GetByID(int64) (Todo, *RestErr)
+	Store(*Todo) *RestErr
+	Update(*Todo) *RestErr
+	Delete(int64) *RestErr
 }
