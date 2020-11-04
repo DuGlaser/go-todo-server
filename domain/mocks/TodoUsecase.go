@@ -13,21 +13,23 @@ type TodoUsecase struct {
 }
 
 // Delete provides a mock function with given fields: _a0
-func (_m *TodoUsecase) Delete(_a0 int64) error {
+func (_m *TodoUsecase) Delete(_a0 int64) *domain.RestErr {
 	ret := _m.Called(_a0)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(int64) error); ok {
+	var r0 *domain.RestErr
+	if rf, ok := ret.Get(0).(func(int64) *domain.RestErr); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RestErr)
+		}
 	}
 
 	return r0
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *TodoUsecase) GetAll() (domain.Todos, error) {
+func (_m *TodoUsecase) GetAll() (domain.Todos, *domain.RestErr) {
 	ret := _m.Called()
 
 	var r0 domain.Todos
@@ -39,18 +41,20 @@ func (_m *TodoUsecase) GetAll() (domain.Todos, error) {
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
+	var r1 *domain.RestErr
+	if rf, ok := ret.Get(1).(func() *domain.RestErr); ok {
 		r1 = rf()
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*domain.RestErr)
+		}
 	}
 
 	return r0, r1
 }
 
 // GetByID provides a mock function with given fields: _a0
-func (_m *TodoUsecase) GetByID(_a0 int64) (domain.Todo, error) {
+func (_m *TodoUsecase) GetByID(_a0 int64) (domain.Todo, *domain.RestErr) {
 	ret := _m.Called(_a0)
 
 	var r0 domain.Todo
@@ -60,39 +64,45 @@ func (_m *TodoUsecase) GetByID(_a0 int64) (domain.Todo, error) {
 		r0 = ret.Get(0).(domain.Todo)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(int64) error); ok {
+	var r1 *domain.RestErr
+	if rf, ok := ret.Get(1).(func(int64) *domain.RestErr); ok {
 		r1 = rf(_a0)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*domain.RestErr)
+		}
 	}
 
 	return r0, r1
 }
 
 // Store provides a mock function with given fields: _a0
-func (_m *TodoUsecase) Store(_a0 *domain.Todo) error {
+func (_m *TodoUsecase) Store(_a0 *domain.Todo) *domain.RestErr {
 	ret := _m.Called(_a0)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*domain.Todo) error); ok {
+	var r0 *domain.RestErr
+	if rf, ok := ret.Get(0).(func(*domain.Todo) *domain.RestErr); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RestErr)
+		}
 	}
 
 	return r0
 }
 
 // Update provides a mock function with given fields: _a0
-func (_m *TodoUsecase) Update(_a0 *domain.Todo) error {
+func (_m *TodoUsecase) Update(_a0 *domain.Todo) *domain.RestErr {
 	ret := _m.Called(_a0)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*domain.Todo) error); ok {
+	var r0 *domain.RestErr
+	if rf, ok := ret.Get(0).(func(*domain.Todo) *domain.RestErr); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RestErr)
+		}
 	}
 
 	return r0
