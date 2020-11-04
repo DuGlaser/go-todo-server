@@ -45,7 +45,7 @@ func (h *TodoHandler) GetByID(c *gin.Context) {
 
 	res, restErr := h.todoUsecase.GetByID(int64(intID))
 	if restErr != nil {
-		c.JSON(http.StatusInternalServerError, restErr)
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *TodoHandler) Create(c *gin.Context) {
 	}
 
 	if err := todo.Validate(); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(err.Status, err)
 		return
 	}
 
@@ -82,12 +82,12 @@ func (h *TodoHandler) Update(c *gin.Context) {
 	}
 
 	if err := todo.Validate(); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(err.Status, err)
 		return
 	}
 
 	if restErr := h.todoUsecase.Update(&todo); restErr != nil {
-		c.JSON(http.StatusInternalServerError, restErr)
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (h *TodoHandler) Delete(c *gin.Context) {
 	}
 
 	if restErr := h.todoUsecase.Delete(int64(intID)); restErr != nil {
-		c.JSON(http.StatusInternalServerError, restErr)
+		c.JSON(restErr.Status, restErr)
 		return
 	}
 
