@@ -34,7 +34,7 @@ func TestInvalidTitleTodo(t *testing.T) {
 	}
 
 	err := todo.Validate()
-	assert.EqualValues(t, "title is empty", err.Error())
+	assert.EqualValues(t, "title is empty", err.Message)
 }
 
 func TestInvalidDescriptionTodo(t *testing.T) {
@@ -46,7 +46,7 @@ func TestInvalidDescriptionTodo(t *testing.T) {
 	}
 
 	err := todo.Validate()
-	assert.EqualValues(t, "description is empty", err.Error())
+	assert.EqualValues(t, "description is empty", err.Message)
 }
 
 func TestInvalidStatusTodo(t *testing.T) {
@@ -58,7 +58,7 @@ func TestInvalidStatusTodo(t *testing.T) {
 	}
 
 	err := todo.Validate()
-	assert.EqualValues(t, "invalid status", err.Error())
+	assert.EqualValues(t, "invalid status", err.Message)
 }
 
 func TestStatusIsDone(t *testing.T) {
