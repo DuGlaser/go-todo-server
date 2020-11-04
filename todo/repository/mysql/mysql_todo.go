@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/DuGlaser/go-todo-server/domain"
@@ -24,10 +23,10 @@ func NewMysqlTodoRepository(Conn *sql.DB) domain.TodoRepository {
 	return &mysqlTodoRepository{Conn}
 }
 
-func (m *mysqlTodoRepository) GetAll() (domain.Todos, error) {
+func (m *mysqlTodoRepository) GetAll() (domain.Todos, *domain.RestErr) {
 	stmt, err := m.Conn.Prepare(queryGetAllTodo)
 	if err != nil {
-		return nil, errors.New("error when trying to get todos")
+		return nil, domain.NewInternalServerError("error when trying to get todos")
 	}
 	defer stmt.Close()
 
@@ -35,7 +34,7 @@ func (m *mysqlTodoRepository) GetAll() (domain.Todos, error) {
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("error when trying to get todos")
+		return nil, domain.NewInternalServerError("error when trying to get todos")
 	}
 
 	todos := make(domain.Todos, 0)
@@ -51,7 +50,7 @@ func (m *mysqlTodoRepository) GetAll() (domain.Todos, error) {
 		)
 		if scanErr != nil {
 			fmt.Println(err)
-			return nil, errors.New("error when trying to get todos")
+			return nil, domain.NewInternalServerError("error when trying to get todos")
 		}
 
 		todos = append(todos, todo)
@@ -60,11 +59,11 @@ func (m *mysqlTodoRepository) GetAll() (domain.Todos, error) {
 	return todos, nil
 }
 
-func (m *mysqlTodoRepository) GetByID(id int64) (domain.Todo, error) {
+func (m *mysqlTodoRepository) GetByID(id int64) (domain.Todo, *domain.RestErr) {
 	var t domain.Todo
 	stmt, err := m.Conn.Prepare(queryGetByIdTodo)
 	if err != nil {
-		return t, errors.New("error when trying to get todo by id")
+		return t, domain.NewInternalServerError("error when trying to get todo by id")
 	}
 	defer stmt.Close()
 
@@ -77,16 +76,16 @@ func (m *mysqlTodoRepository) GetByID(id int64) (domain.Todo, error) {
 		&t.Status,
 	)
 	if err != nil {
-		return t, errors.New("error when trying to get todo by id")
+		return t, domain.NewInternalServerError("error when trying to get todo by id")
 	}
 
 	return t, nil
 }
 
-func (m *mysqlTodoRepository) Store(t *domain.Todo) error {
+func (m *mysqlTodoRepository) Store(t *domain.Todo) *domain.RestErr {
 	stmt, err := m.Conn.Prepare(queryInsertTodo)
 	if err != nil {
-		return errors.New("error when trying to save todo")
+		return domain.NewInternalServerError("error when trying to save todo")
 	}
 	defer stmt.Close()
 
@@ -96,12 +95,12 @@ func (m *mysqlTodoRepository) Store(t *domain.Todo) error {
 		t.Status,
 	)
 	if err != nil {
-		return errors.New("error when trying to save todo")
+		return domain.NewInternalServerError("error when trying to save todo")
 	}
 
 	todoID, err := result.LastInsertId()
 	if err != nil {
-		return errors.New("error when trying to save todo")
+		return domain.NewInternalServerError("error when trying to save todo")
 	}
 
 	t.ID = todoID
@@ -109,10 +108,10 @@ func (m *mysqlTodoRepository) Store(t *domain.Todo) error {
 	return nil
 }
 
-func (m *mysqlTodoRepository) Update(t *domain.Todo) error {
+func (m *mysqlTodoRepository) Update(t *domain.Todo) *domain.RestErr {
 	stmt, err := m.Conn.Prepare(queryUpdateTodo)
 	if err != nil {
-		return errors.New("error when trying to update todo")
+		return domain.NewInternalServerError("error when trying to update todo")
 	}
 	defer stmt.Close()
 
@@ -123,24 +122,24 @@ func (m *mysqlTodoRepository) Update(t *domain.Todo) error {
 		t.ID,
 	)
 	if err != nil {
-		return errors.New("error when trying to update todo")
+		return domain.NewInternalServerError("error when trying to update todo")
 	}
 
 	return nil
 }
 
-func (m *mysqlTodoRepository) Delete(id int64) error {
+func (m *mysqlTodoRepository) Delete(id int64) *domain.RestErr {
 	stmt, err := m.Conn.Prepare(queryDeleteTodo)
 	if err != nil {
 		fmt.Println(err)
-		return errors.New("error when trying to delete todo")
+		return domain.NewInternalServerError("error when trying to delete todo")
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
 	if err != nil {
 		fmt.Println(err)
-		return errors.New("error when trying to delete todo")
+		return domain.NewInternalServerError("error when trying to delete todo")
 	}
 
 	return nil
